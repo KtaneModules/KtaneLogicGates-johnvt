@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
-using Random = System.Random;
-using System.Security.Cryptography;
 
 public class LogicGates : MonoBehaviour
 {
@@ -53,7 +51,6 @@ public class LogicGates : MonoBehaviour
     private int _currentInputIndex = 0;
     private int _moduleId;
     private static int _moduleIdCounter = 1;
-    private static Random rng = new Random();
 
     void Start()
     {
@@ -98,7 +95,7 @@ public class LogicGates : MonoBehaviour
 
             // Pick 4 random gates for A, B, C and D
             int[] pool = new int[] { AND, OR, XOR, NAND, NOR, XNOR, Rnd.Range(0, 6) };
-            pool.Shuffle();
+            shuffle(pool);
 
             config.Clear();
             for (i = 0; i < 4; i++) config.Add(pool[i]);
@@ -245,6 +242,18 @@ public class LogicGates : MonoBehaviour
         Debug.LogFormat("[Logic Gates #{0}] Solution: {1}", _moduleId, msg);
     }
 
+    // Knuth shuffle algorithm :: courtesy of Wikipedia :)
+    private void shuffle(int[] ints)
+    {
+        for (int i = 0; i < ints.Length; i++)
+        {
+            var tmp = ints[i];
+            var r = Rnd.Range(i, ints.Length);
+            ints[i] = ints[r];
+            ints[r] = tmp;
+        }
+    }
+
     private void UpdateLeds()
     {
         for (var i = 0; i < 8; i++)
@@ -304,26 +313,5 @@ public class LogicGates : MonoBehaviour
         public string Name { get; set; }
         public Func<bool, bool, bool> Eval { get; set; }
         public int Steps { get; set; }
-    }
-}
-
-
-static class MyExtensions
-{
-    public static void Shuffle<T>(this IList<T> list)
-    {
-        RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
-        int n = list.Count;
-        while (n > 1)
-        {
-            byte[] box = new byte[1];
-            do provider.GetBytes(box);
-            while (!(box[0] < n * (Byte.MaxValue / n)));
-            int k = (box[0] % n);
-            n--;
-            T value = list[k];
-            list[k] = list[n];
-            list[n] = value;
-        }
     }
 }
