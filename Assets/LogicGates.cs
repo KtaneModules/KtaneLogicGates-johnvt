@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
+using Random = System.Random;
+using System.Security.Cryptography;
 
 public class LogicGates : MonoBehaviour
 {
@@ -51,6 +53,7 @@ public class LogicGates : MonoBehaviour
     private int _currentInputIndex = 0;
     private int _moduleId;
     private static int _moduleIdCounter = 1;
+    private static Random rng = new Random();
 
     void Start()
     {
@@ -63,45 +66,42 @@ public class LogicGates : MonoBehaviour
         ButtonRight.OnInteract += delegate () { PressArrow(Right); return false; };
         ButtonCheck.OnInteract += delegate () { PressCheck(); return false; };
 
-        // Keep track of which inputs make the whole circuit on/off
+        // Keep track of possible solutions
         List<int> on = new List<int>();
-        List<int> off = new List<int>();
 
-        // Keep track of neither, one or both on for gates A, B, C and D
-        // We must have at least one of each in order to deduct the gate type
-        // First index is for gates A, B, C and D. Second index is for neither, one and both.
-        List<int>[,] gateInputs = new List<int>[4, 3] {
-                    { new List<int>(), new List<int>(), new List<int>() },
-                    { new List<int>(), new List<int>(), new List<int>() },
-                    { new List<int>(), new List<int>(), new List<int>() },
-                    { new List<int>(), new List<int>(), new List<int>() }
-                };
+        // For wrong answers, keep track of the inputs for gates A, B, C and D.
+        // We need at least one of each of "neither", "one" and "both" in order to deduct the gate type
+        // Index is gate * 3 (A, B, C and D) + type (neither, one and both).
+        List<int>[] gateInputs = new List<int>[12];
+        for (i = 0; i < 12; i++) gateInputs[i] = new List<int>();
+
+        var config = new List<int>();
+
+        var tries = 0;
+        var zeroOn = 0;
+        var missingInput = 0;
+        var quit = false;
+
+        var configs = new List<List<int>>();
 
         while (true)
         {
-            // Possible configs for the first four, between 0123 and 5432 inclusive
-            i = Rnd.Range(123, 5433);
-            var config = new List<int> {
-                i / 1000 % 10,
-                i / 100 % 10,
-                i / 10 % 10,
-                i % 10
-            };
-
-            // We only have 6 gate types
-            valid = true;
-            foreach (int index in config)
+            tries++;
+            if (tries > 10000)
             {
-                if (index > 5)
-                {
-                    valid = false;
-                    break;
-                }
+                quit = true;
+                break;
             }
-            if (!valid) continue;
 
-            // Max 1 duplicate in first four
-            if (config.Distinct().Count() < 3) continue;
+            on.Clear();
+            foreach (var gateInput in gateInputs) gateInput.Clear();
+
+            // Pick 4 random gates for A, B, C and D
+            int[] pool = new int[] { AND, OR, XOR, NAND, NOR, XNOR, Rnd.Range(0, 6) };
+            pool.Shuffle();
+
+            config.Clear();
+            for (i = 0; i < 4; i++) config.Add(pool[i]);
 
             // Determine the other three by manual rules, check number of duplicates each time
             config.Add((config[GateA] + _gateTypes[config[GateB]].Steps) % 6);
@@ -119,6 +119,9 @@ public class LogicGates : MonoBehaviour
             {
                 config[GateG] = (config[GateG] + 1) % 6;
             }
+
+            // Add to tried configs for logging
+            configs.Add(config);
 
             // We found a valid config for the 7 gates
             foreach (int gateType in config)
@@ -145,43 +148,58 @@ public class LogicGates : MonoBehaviour
                 }
                 else
                 {
-                    off.Add(input);
                     for (i = GateA; i <= GateD; i++)
                     {
                         if (!GetBit(input, i * 2) && !GetBit(input, i * 2 + 1))
                         {
-                            gateInputs[i, None].Add(input);
+                            gateInputs[i * 3 + None].Add(input);
                         }
                         else if (GetBit(input, i * 2) && GetBit(input, i * 2 + 1))
                         {
-                            gateInputs[i, Both].Add(input);
+                            gateInputs[i * 3 + Both].Add(input);
                         }
                         else
                         {
-                            gateInputs[i, One].Add(input);
+                            gateInputs[i * 3 + One].Add(input);
                         }
                     }
                 }
             }
 
             // We do need a solution
-            if (on.Count == 0) continue;
-
-            // And enough wrong answers
-            if (off.Count < 12) continue;
+            if (on.Count == 0)
+            {
+                zeroOn++;
+                continue;
+            }
 
             // If one of these is empty, we miss an input that's required for the defuser to tell the gate types of A, B, C and D
             valid = true;
             for (i = GateA; i <= GateD; i++)
             {
-                valid = (gateInputs[i, None].Count > 0 && gateInputs[i, One].Count > 0 && gateInputs[i, Both].Count > 0);
+                valid = (gateInputs[i * 3 + None].Count > 0 && gateInputs[i * 3 + One].Count > 0 && gateInputs[i * 3 + Both].Count > 0);
                 if (!valid) break;
             }
-            if (!valid) continue;
+            if (!valid)
+            {
+                missingInput++;
+                continue;
+            }
 
             // Still here? We have a valid configuration!
             break;
         }
+
+        if (quit)
+        {
+            Debug.Log("Over 10000 tries! I quit! #zeroOn: " + zeroOn + ", #missingInput: " + missingInput);
+        }
+        else
+        {
+            Debug.Log("Found a configuration after " + tries + " tries.");
+        }
+
+        Debug.Log(String.Join("\n", configs.ConvertAll(conf => String.Join(" ", conf.ConvertAll(gate => gate.ToString()).ToArray())).ToArray()));
 
         // Solution
         _solution = on[Rnd.Range(0, on.Count)];
@@ -211,7 +229,7 @@ public class LogicGates : MonoBehaviour
                 {
                     continue;
                 }
-                _inputs.Add(gateInputs[i, j][Rnd.Range(0, gateInputs[i, j].Count)]);
+                _inputs.Add(gateInputs[i * 3 + j][Rnd.Range(0, gateInputs[i * 3 + j].Count)]);
             }
         }
 
@@ -286,5 +304,26 @@ public class LogicGates : MonoBehaviour
         public string Name { get; set; }
         public Func<bool, bool, bool> Eval { get; set; }
         public int Steps { get; set; }
+    }
+}
+
+
+static class MyExtensions
+{
+    public static void Shuffle<T>(this IList<T> list)
+    {
+        RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
+        int n = list.Count;
+        while (n > 1)
+        {
+            byte[] box = new byte[1];
+            do provider.GetBytes(box);
+            while (!(box[0] < n * (Byte.MaxValue / n)));
+            int k = (box[0] % n);
+            n--;
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
+        }
     }
 }
