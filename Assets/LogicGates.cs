@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -74,34 +73,20 @@ public class LogicGates : MonoBehaviour
 
         var config = new List<int>();
 
-        var tries = 0;
-        var zeroOn = 0;
-        var missingInput = 0;
-        var quit = false;
-
-        var configs = new List<List<int>>();
-
         while (true)
         {
-            tries++;
-            if (tries > 10000)
-            {
-                quit = true;
-                break;
-            }
-
             _gates.Clear();
             on.Clear();
             foreach (var gateInput in gateInputs) gateInput.Clear();
+            config.Clear();
 
             // Pick 4 random gates for A, B, C and D
             int[] pool = new int[] { AND, OR, XOR, NAND, NOR, XNOR, Rnd.Range(0, 6) };
-            shuffle(pool);
+            ShuffleInts(pool);
 
-            config.Clear();
             for (i = 0; i < 4; i++) config.Add(pool[i]);
 
-            // Determine the other three by manual rules, check number of duplicates each time
+            // Determine the other three by manual rules, checking number of duplicates each time
             config.Add((config[GateA] + _gateTypes[config[GateB]].Steps) % 6);
             while (config.Distinct().Count() < 4)
             {
@@ -117,9 +102,6 @@ public class LogicGates : MonoBehaviour
             {
                 config[GateG] = (config[GateG] + 1) % 6;
             }
-
-            // Add to tried configs for logging
-            configs.Add(config.ToList());
 
             // We found a valid config for the 7 gates
             foreach (int gateType in config)
@@ -167,7 +149,6 @@ public class LogicGates : MonoBehaviour
             // We do need a solution
             if (on.Count == 0)
             {
-                zeroOn++;
                 continue;
             }
 
@@ -180,24 +161,12 @@ public class LogicGates : MonoBehaviour
             }
             if (!valid)
             {
-                missingInput++;
                 continue;
             }
 
             // Still here? We have a valid configuration!
             break;
         }
-
-        if (quit)
-        {
-            Debug.Log("Over 10000 tries! I quit! #zeroOn: " + zeroOn + ", #missingInput: " + missingInput);
-        }
-        else
-        {
-            Debug.Log("Found a configuration after " + tries + " tries.");
-        }
-
-        Debug.Log(String.Join("\n", configs.ConvertAll(conf => String.Join(" ", conf.ConvertAll(gate => gate.ToString()).ToArray())).ToArray()));
 
         // Solution
         _solution = on[Rnd.Range(0, on.Count)];
@@ -231,20 +200,37 @@ public class LogicGates : MonoBehaviour
             }
         }
 
+        // @todo: shuffle _inputs
         _currentInputIndex = Rnd.Range(0, 12);
         UpdateLeds();
 
         Debug.LogFormat("[Logic Gates #{0}] Gates: {1}", _moduleId, String.Join(", ", _gates.ConvertAll(n => n.GateType.Name).ToArray()));
-        string msg = "";
-        for (i = 0; i < 8; i++)
+
+        // The inputs are numbered top to bottom. But most to least significant bit it bottom to top. So let's just reverse it for logging.
+        Debug.LogFormat("[Logic Gates #{0}] Solution: {1}", _moduleId, Reverse(Convert.ToString(_solution, 2).PadLeft(8, '0')));
+        /*Debug.LogFormat("[Logic Gates #{0}] (({1} {2} {3}) {4} ({5} {6} {7})) {8} (({9} {10} {11}) {12} ({13} {14} {15}))",
+            _moduleId,
+                    _gates[GateG].GateType.Eval(
+                        _gates[GateE].GateType.Eval(
+                            _gates[GateA].GateType.Eval(GetBit(input, 0), GetBit(input, 1)),
+                            _gates[GateB].GateType.Eval(GetBit(input, 2), GetBit(input, 3))
+                        ),
+                        _gates[GateF].GateType.Eval(
+                            _gates[GateC].GateType.Eval(GetBit(input, 4), GetBit(input, 5)),
+                            _gates[GateD].GateType.Eval(GetBit(input, 6), GetBit(input, 7))
+                        )
+                    )
+
+        );*/
+
+        foreach (var input in _inputs) if (input != _solution)
         {
-            msg += GetBit(_solution, i) ? "1" : "0";
+            Debug.LogFormat("[Logic Gates #{0}] Wrong answer: {1}", _moduleId, Reverse(Convert.ToString(input, 2).PadLeft(8, '0')));
         }
-        Debug.LogFormat("[Logic Gates #{0}] Solution: {1}", _moduleId, msg);
     }
 
     // Knuth shuffle algorithm :: courtesy of Wikipedia :)
-    private void shuffle(int[] ints)
+    private void ShuffleInts(int[] ints)
     {
         for (int i = 0; i < ints.Length; i++)
         {
@@ -253,6 +239,16 @@ public class LogicGates : MonoBehaviour
             ints[i] = ints[r];
             ints[r] = tmp;
         }
+    }
+
+    public string Reverse(string text)
+    {
+        if (text == null) return null;
+
+        // this was posted by petebob as well 
+        char[] array = text.ToCharArray();
+        Array.Reverse(array);
+        return new String(array);
     }
 
     private void UpdateLeds()
@@ -314,13 +310,5 @@ public class LogicGates : MonoBehaviour
         public string Name { get; set; }
         public Func<bool, bool, bool> Eval { get; set; }
         public int Steps { get; set; }
-    }
-}
-
-static class Extensions
-{
-    public static IList<T> Clone<T>(this IList<T> listToClone) where T : ICloneable
-    {
-        return listToClone.Select(item => (T)item.Clone()).ToList();
     }
 }
