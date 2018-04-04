@@ -90,6 +90,7 @@ public class LogicGates : MonoBehaviour
                 break;
             }
 
+            _gates.Clear();
             on.Clear();
             foreach (var gateInput in gateInputs) gateInput.Clear();
 
@@ -118,7 +119,7 @@ public class LogicGates : MonoBehaviour
             }
 
             // Add to tried configs for logging
-            configs.Add(config);
+            configs.Add(config.ToList());
 
             // We found a valid config for the 7 gates
             foreach (int gateType in config)
@@ -313,5 +314,13 @@ public class LogicGates : MonoBehaviour
         public string Name { get; set; }
         public Func<bool, bool, bool> Eval { get; set; }
         public int Steps { get; set; }
+    }
+}
+
+static class Extensions
+{
+    public static IList<T> Clone<T>(this IList<T> listToClone) where T : ICloneable
+    {
+        return listToClone.Select(item => (T)item.Clone()).ToList();
     }
 }
