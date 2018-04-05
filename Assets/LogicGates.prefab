@@ -1207,6 +1207,8 @@ MonoBehaviour:
   ButtonLeft: {fileID: 114907167962058204}
   ButtonRight: {fileID: 114895835640961030}
   ButtonCheck: {fileID: 114540058087902984}
+  TwitchHelpMessage: Cycle with '!{0} left' (or l/previous/prev/p) and '!{0} right'
+    (or r/next/n). Check with !{0} check.
 --- !u!114 &114084612015340124
 MonoBehaviour:
   m_ObjectHideFlags: 1

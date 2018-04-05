@@ -34,6 +34,8 @@ public class LogicGates : MonoBehaviour
     public KMSelectable ButtonRight;
     public KMSelectable ButtonCheck;
 
+    public string TwitchHelpMessage = "Cycle with '!{0} left' (or l/previous/prev/p) and '!{0} right' (or r/next/n). Check with !{0} check.";
+
     private GateType[] _gateTypes = new GateType[]
     {
         new GateType() { Steps = 1, Name = "AND", Type = AND, Eval = (a, b) => a && b },
@@ -55,9 +57,6 @@ public class LogicGates : MonoBehaviour
     {
         _moduleId = _moduleIdCounter++;
 
-        int i, j;
-        bool valid;
-
         ButtonLeft.OnInteract += delegate () { PressArrow(Left); return false; };
         ButtonRight.OnInteract += delegate () { PressArrow(Right); return false; };
         ButtonCheck.OnInteract += delegate () { PressCheck(); return false; };
@@ -69,45 +68,36 @@ public class LogicGates : MonoBehaviour
         // We need at least one of each of "neither", "one" and "both" in order to deduct the gate type
         // Index is gate * 3 (A, B, C and D) + type (neither, one and both).
         List<int>[] gateInputs = new List<int>[12];
-        for (i = 0; i < 12; i++) gateInputs[i] = new List<int>();
+        for (var i = 0; i < 12; i++) gateInputs[i] = new List<int>();
 
-        var config = new List<int>();
-
+        // It might take a couple of tries to randomly find a configuration that "works"
         while (true)
         {
             _gates.Clear();
             on.Clear();
             foreach (var gateInput in gateInputs) gateInput.Clear();
-            config.Clear();
+            var config = new List<int>();
 
             // Pick 4 random gates for A, B, C and D
             int[] pool = new int[] { AND, OR, XOR, NAND, NOR, XNOR, Rnd.Range(0, 6) };
             ShuffleInts(pool);
 
-            for (i = 0; i < 4; i++) config.Add(pool[i]);
+            for (var i = 0; i < 4; i++) config.Add(pool[i]);
 
             // Determine the other three by manual rules, checking number of duplicates each time
             config.Add((config[GateA] + _gateTypes[config[GateB]].Steps) % 6);
             while (config.Distinct().Count() < 4)
-            {
                 config[GateE] = (config[GateE] + 1) % 6;
-            }
             config.Add((config[GateE] + _gateTypes[config[GateC]].Steps) % 6);
             while (config.Distinct().Count() < 5)
-            {
                 config[GateF] = (config[GateF] + 1) % 6;
-            }
             config.Add((config[GateF] + _gateTypes[config[GateD]].Steps) % 6);
             while (config.Distinct().Count() < 6)
-            {
                 config[GateG] = (config[GateG] + 1) % 6;
-            }
 
             // We found a valid config for the 7 gates
             foreach (int gateType in config)
-            {
                 _gates.Add(new Gate { GateType = _gateTypes[gateType] });
-            }
 
             for (int input = 0; input <= 255; input++)
             {
@@ -128,43 +118,31 @@ public class LogicGates : MonoBehaviour
                 }
                 else
                 {
-                    for (i = GateA; i <= GateD; i++)
+                    for (var i = GateA; i <= GateD; i++)
                     {
                         if (!GetBit(input, i * 2) && !GetBit(input, i * 2 + 1))
-                        {
                             gateInputs[i * 3 + None].Add(input);
-                        }
                         else if (GetBit(input, i * 2) && GetBit(input, i * 2 + 1))
-                        {
                             gateInputs[i * 3 + Both].Add(input);
-                        }
                         else
-                        {
                             gateInputs[i * 3 + One].Add(input);
-                        }
                     }
                 }
             }
 
             // We do need a solution
-            if (on.Count == 0)
-            {
-                continue;
-            }
+            if (on.Count == 0) continue;
 
             // If one of these is empty, we miss an input that's required for the defuser to tell the gate types of A, B, C and D
-            valid = true;
-            for (i = GateA; i <= GateD; i++)
+            bool valid = true;
+            for (int i = GateA; i <= GateD; i++)
             {
                 valid = (gateInputs[i * 3 + None].Count > 0 && gateInputs[i * 3 + One].Count > 0 && gateInputs[i * 3 + Both].Count > 0);
                 if (!valid) break;
             }
-            if (!valid)
-            {
-                continue;
-            }
+            if (!valid) continue;
 
-            // Still here? We have a valid configuration!
+            // Still here? We've found a valid configuration!
             break;
         }
 
@@ -176,26 +154,17 @@ public class LogicGates : MonoBehaviour
         var gateToReplace = Rnd.Range(0, 4);
         var twoBitsToReplace = 0;
         if (!GetBit(_solution, gateToReplace * 2) && !GetBit(_solution, gateToReplace * 2 + 1))
-        {
             twoBitsToReplace = None;
-        }
         else if (GetBit(_solution, gateToReplace * 2) && GetBit(_solution, gateToReplace * 2 + 1))
-        {
             twoBitsToReplace = Both;
-        }
         else
-        {
             twoBitsToReplace = One;
-        }
 
-        for (i = GateA; i <= GateD; i++)
+        for (var i = GateA; i <= GateD; i++)
         {
-            for (j = None; j <= Both; j++)
+            for (var j = None; j <= Both; j++)
             {
-                if ((i == gateToReplace) && (j == twoBitsToReplace))
-                {
-                    continue;
-                }
+                if ((i == gateToReplace) && (j == twoBitsToReplace)) continue;
                 _inputs.Add(gateInputs[i * 3 + j][Rnd.Range(0, gateInputs[i * 3 + j].Count)]);
             }
         }
@@ -206,26 +175,24 @@ public class LogicGates : MonoBehaviour
 
         Debug.LogFormat("[Logic Gates #{0}] Gates: {1}", _moduleId, String.Join(", ", _gates.ConvertAll(n => n.GateType.Name).ToArray()));
 
-        // The inputs are numbered top to bottom. But most to least significant bit it bottom to top. So let's just reverse it for logging.
-        Debug.LogFormat("[Logic Gates #{0}] Solution: {1}", _moduleId, Reverse(Convert.ToString(_solution, 2).PadLeft(8, '0')));
-        /*Debug.LogFormat("[Logic Gates #{0}] (({1} {2} {3}) {4} ({5} {6} {7})) {8} (({9} {10} {11}) {12} ({13} {14} {15}))",
-            _moduleId,
-                    _gates[GateG].GateType.Eval(
-                        _gates[GateE].GateType.Eval(
-                            _gates[GateA].GateType.Eval(GetBit(input, 0), GetBit(input, 1)),
-                            _gates[GateB].GateType.Eval(GetBit(input, 2), GetBit(input, 3))
-                        ),
-                        _gates[GateF].GateType.Eval(
-                            _gates[GateC].GateType.Eval(GetBit(input, 4), GetBit(input, 5)),
-                            _gates[GateD].GateType.Eval(GetBit(input, 6), GetBit(input, 7))
-                        )
-                    )
-
-        );*/
-
-        foreach (var input in _inputs) if (input != _solution)
+        foreach (var input in _inputs)
         {
-            Debug.LogFormat("[Logic Gates #{0}] Wrong answer: {1}", _moduleId, Reverse(Convert.ToString(input, 2).PadLeft(8, '0')));
+            // The input LEDs are numbered top to bottom. But most to least significant bit is bottom to top. So let's just reverse it for logging.
+            var inputs = Reverse(Convert.ToString(input, 2).PadLeft(8, '0'));
+
+            var outputs = "";
+            for (var i = 0; i < 4; i++)
+            {
+                outputs += _gates[i].GateType.Eval(GetBit(input, i * 2), GetBit(input, i * 2 + 1)) ? "1" : "0";
+            }
+
+            Debug.LogFormat(
+                "[Logic Gates #{0}] {1}: In={2} Out={3}",
+                _moduleId,
+                (input == _solution ? "Solution" : "Wrong answer"),
+                inputs,
+                outputs
+            );
         }
     }
 
@@ -283,7 +250,8 @@ public class LogicGates : MonoBehaviour
         GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
         GetComponent<KMSelectable>().AddInteractionPunch();
 
-        if (_inputs[_currentInputIndex] == _solution)
+        bool correct = _inputs[_currentInputIndex] == _solution;
+        if (correct)
         {
             GetComponent<KMBombModule>().HandlePass();
         }
@@ -292,11 +260,45 @@ public class LogicGates : MonoBehaviour
             GetComponent<KMBombModule>().HandleStrike();
         }
 
+        Debug.LogFormat("[Logic Gates #{0}] Checking {1}: {2}.",
+            _moduleId,
+            Reverse(Convert.ToString(_inputs[_currentInputIndex], 2).PadLeft(8, '0')),
+            (correct ? "correct!" : "wrong!")
+        );
     }
 
     bool GetBit(int number, int bit)
     {
         return (number & (1 << bit)) != 0;
+    }
+
+    public KMSelectable[] ProcessTwitchCommand(string command)
+    {
+        if (
+            command.Equals("left", StringComparison.InvariantCultureIgnoreCase) ||
+            command.Equals("l", StringComparison.InvariantCultureIgnoreCase) ||
+            command.Equals("previous", StringComparison.InvariantCultureIgnoreCase) ||
+            command.Equals("prev", StringComparison.InvariantCultureIgnoreCase) ||
+            command.Equals("p", StringComparison.InvariantCultureIgnoreCase)
+        )
+        {
+            return new KMSelectable[] { ButtonLeft };
+        }
+        else if (
+            command.Equals("right", StringComparison.InvariantCultureIgnoreCase) ||
+            command.Equals("r", StringComparison.InvariantCultureIgnoreCase) ||
+            command.Equals("next", StringComparison.InvariantCultureIgnoreCase) ||
+            command.Equals("n", StringComparison.InvariantCultureIgnoreCase)
+        )
+        {
+            return new KMSelectable[] { ButtonRight };
+        }
+        else if (command.Equals("check", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return new KMSelectable[] { ButtonCheck };
+        }
+
+        return null;
     }
 
     struct Gate
