@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -34,7 +35,7 @@ public class LogicGates : MonoBehaviour
     public KMSelectable ButtonRight;
     public KMSelectable ButtonCheck;
 
-    public string TwitchHelpMessage = "Cycle with '!{0} left' (or l/previous/prev/p) and '!{0} right' (or r/next/n). Check with !{0} check.";
+    public string TwitchHelpMessage = "Next: '!{0} next' (or n/right/r). Previous: '!{0} previous' (or p/prev/left/l). Cycle next 5: '!{0} n 5'. Cycle previous 3 slow: '!{0} p 3 slow'. Check: '!{0} check'.";
 
     private GateType[] _gateTypes = new GateType[]
     {
@@ -272,7 +273,7 @@ public class LogicGates : MonoBehaviour
         return (number & (1 << bit)) != 0;
     }
 
-    public KMSelectable[] ProcessTwitchCommand(string command)
+    /*public KMSelectable[] ProcessTwitchCommand(string command)
     {
         if (
             command.Equals("left", StringComparison.InvariantCultureIgnoreCase) ||
@@ -299,6 +300,50 @@ public class LogicGates : MonoBehaviour
         }
 
         return null;
+    }*/
+
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        yield return null;
+
+        var split = command.ToLowerInvariant().Trim().Split(new[] { ' ' });
+        if ((new string[] { "left", "l", "previous", "prev", "p" }).Contains(split[0]))
+            split[0] = "left";
+        if ((new string[] { "right", "r", "next", "n" }).Contains(split[0]))
+            split[0] = "right";
+        int amount;
+
+        if (split.Length == 1 && (new string[] { "left", "right", "check" }).Contains(split[0]))
+        {
+            if (split[0] == "left")
+                yield return ButtonLeft.OnInteract();
+            else if (split[0] == "right")
+                yield return ButtonRight.OnInteract();
+            else if (split[0] == "check")
+                yield return ButtonCheck.OnInteract();
+
+            yield return new WaitForSeconds(0.1f);
+        }
+        else if (split.Length > 1 && int.TryParse(split[1], out amount) && (new string[] { "left", "right" }).Contains(split[0]))
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                if (split[0] == "left")
+                    yield return ButtonLeft.OnInteract();
+                else if (split[0] == "right")
+                    yield return ButtonRight.OnInteract();
+
+                if (split.Length > 2 && split[2] == "slow")
+                    yield return new WaitForSeconds(2f);
+                else
+                    yield return new WaitForSeconds(1f);
+            }
+        }
+        else
+        {
+            yield return string.Format("sendtochaterror Invalid command: '{0}'. Use help to see what the valid commands are.", command);
+            yield break;
+        }
     }
 
     struct Gate
