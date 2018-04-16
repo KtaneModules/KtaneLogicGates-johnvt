@@ -35,7 +35,8 @@ public class LogicGates : MonoBehaviour
     public KMSelectable ButtonRight;
     public KMSelectable ButtonCheck;
 
-    public string TwitchHelpMessage = "Next: '!{0} next' (or n/right/r). Previous: '!{0} previous' (or p/prev/left/l). Cycle next 5: '!{0} n 5'. Cycle previous 3 slow: '!{0} p 3 slow'. Check: '!{0} check'.";
+    public string TwitchHelpMessage = "Cycle using a direction (previous/prev/p/left/l, next/n/right/r), optional number of steps, optional speed (slow/veryslow, no speed = instant)."
+        + "E.g. '!{0} next 5 slow', '!{0} prev 2'. Check with '!{0} check'.";
 
     private GateType[] _gateTypes = new GateType[]
     {
@@ -188,11 +189,25 @@ public class LogicGates : MonoBehaviour
             }
 
             Debug.LogFormat(
-                "[Logic Gates #{0}] {1}: In={2} Out={3}",
+                "[Logic Gates #{0}] Configuration: Inputs = {1}, Outputs = {2}, ({3} {4} {5}) {6} ({7} {8} {9}) = {10} {11} {12} = {13}{14}",
                 _moduleId,
-                (input == _solution ? "Solution" : "Wrong answer"),
                 inputs,
-                outputs
+                outputs,
+                outputs[0],
+                _gates[GateE].GateType.Name,
+                outputs[1],
+                _gates[GateG].GateType.Name,
+                outputs[2],
+                _gates[GateF].GateType.Name,
+                outputs[3],
+                _gates[GateE].GateType.Eval(outputs[0] == '1', outputs[1] == '1') ? "1" : "0",
+                _gates[GateG].GateType.Name,
+                _gates[GateF].GateType.Eval(outputs[2] == '1', outputs[3] == '1') ? "1" : "0",
+                _gates[GateG].GateType.Eval(
+                    _gates[GateE].GateType.Eval(outputs[0] == '1', outputs[1] == '1'),
+                    _gates[GateF].GateType.Eval(outputs[2] == '1', outputs[3] == '1')
+                ) ? "1" : "0",
+                input == _solution ? " (SOLUTION!)" : ""
             );
         }
     }
@@ -273,35 +288,6 @@ public class LogicGates : MonoBehaviour
         return (number & (1 << bit)) != 0;
     }
 
-    /*public KMSelectable[] ProcessTwitchCommand(string command)
-    {
-        if (
-            command.Equals("left", StringComparison.InvariantCultureIgnoreCase) ||
-            command.Equals("l", StringComparison.InvariantCultureIgnoreCase) ||
-            command.Equals("previous", StringComparison.InvariantCultureIgnoreCase) ||
-            command.Equals("prev", StringComparison.InvariantCultureIgnoreCase) ||
-            command.Equals("p", StringComparison.InvariantCultureIgnoreCase)
-        )
-        {
-            return new KMSelectable[] { ButtonLeft };
-        }
-        else if (
-            command.Equals("right", StringComparison.InvariantCultureIgnoreCase) ||
-            command.Equals("r", StringComparison.InvariantCultureIgnoreCase) ||
-            command.Equals("next", StringComparison.InvariantCultureIgnoreCase) ||
-            command.Equals("n", StringComparison.InvariantCultureIgnoreCase)
-        )
-        {
-            return new KMSelectable[] { ButtonRight };
-        }
-        else if (command.Equals("check", StringComparison.InvariantCultureIgnoreCase))
-        {
-            return new KMSelectable[] { ButtonCheck };
-        }
-
-        return null;
-    }*/
-
     IEnumerator ProcessTwitchCommand(string command)
     {
         yield return null;
@@ -324,7 +310,15 @@ public class LogicGates : MonoBehaviour
 
             yield return new WaitForSeconds(0.1f);
         }
-        else if (split.Length > 1 && int.TryParse(split[1], out amount) && (new string[] { "left", "right" }).Contains(split[0]))
+        else if (
+            (
+                split.Length == 2 ||
+                (split.Length == 3 && (new string[] { "slow", "veryslow" }).Contains(split[2]))
+            ) &&
+            int.TryParse(split[1], out amount) &&
+            amount > 0 && amount <= 12 &&
+            (new string[] { "left", "right" }).Contains(split[0])
+        )
         {
             for (int i = 0; i < amount; i++)
             {
@@ -333,10 +327,12 @@ public class LogicGates : MonoBehaviour
                 else if (split[0] == "right")
                     yield return ButtonRight.OnInteract();
 
-                if (split.Length > 2 && split[2] == "slow")
+                if (split.Length == 3 && split[2] == "slow")
+                    yield return new WaitForSeconds(1f);
+                else if (split.Length == 3 && split[2] == "veryslow")
                     yield return new WaitForSeconds(2f);
                 else
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSeconds(.1f);
             }
         }
         else
