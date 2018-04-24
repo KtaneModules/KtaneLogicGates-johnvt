@@ -16,6 +16,51 @@ ModelImporter:
     100016: Cube_005
     100018: Cube_006
     100020: //RootNode
+    100022: Cylinder
+    100024: Cylinder_001
+    100026: Cylinder_002
+    100028: Cylinder_003
+    100030: Gate_A
+    100032: Gate_B
+    100034: Gate_C
+    100036: Gate_D
+    100038: Gate_E
+    100040: Gate_F
+    100042: Gate_G
+    100044: Out_1
+    100046: Out_2
+    100048: Out_3
+    100050: Out_4
+    100052: Torus
+    100054: Torus_001
+    100056: Torus_002
+    100058: Torus_003
+    100060: Wire_000
+    100062: Wire_001
+    100064: Cylinder_004
+    100066: Cylinder_005
+    100068: Cylinder_006
+    100070: Cylinder_007
+    100072: Cylinder_008
+    100074: Cylinder_009
+    100076: Cylinder_010
+    100078: Cylinder_011
+    100080: Out_1_001
+    100082: Out_1_002
+    100084: Out_2_001
+    100086: Out_2_002
+    100088: Out_3_001
+    100090: Out_3_002
+    100092: Out_4_001
+    100094: Out_4_002
+    100096: Torus_004
+    100098: Torus_005
+    100100: Torus_006
+    100102: Torus_007
+    100104: Torus_008
+    100106: Torus_009
+    100108: Torus_010
+    100110: Torus_011
     400000: BezierCurve
     400002: BezierCurve_001
     400004: Component_PuzzleBackground
@@ -27,6 +72,51 @@ ModelImporter:
     400016: Cube_005
     400018: Cube_006
     400020: //RootNode
+    400022: Cylinder
+    400024: Cylinder_001
+    400026: Cylinder_002
+    400028: Cylinder_003
+    400030: Gate_A
+    400032: Gate_B
+    400034: Gate_C
+    400036: Gate_D
+    400038: Gate_E
+    400040: Gate_F
+    400042: Gate_G
+    400044: Out_1
+    400046: Out_2
+    400048: Out_3
+    400050: Out_4
+    400052: Torus
+    400054: Torus_001
+    400056: Torus_002
+    400058: Torus_003
+    400060: Wire_000
+    400062: Wire_001
+    400064: Cylinder_004
+    400066: Cylinder_005
+    400068: Cylinder_006
+    400070: Cylinder_007
+    400072: Cylinder_008
+    400074: Cylinder_009
+    400076: Cylinder_010
+    400078: Cylinder_011
+    400080: Out_1_001
+    400082: Out_1_002
+    400084: Out_2_001
+    400086: Out_2_002
+    400088: Out_3_001
+    400090: Out_3_002
+    400092: Out_4_001
+    400094: Out_4_002
+    400096: Torus_004
+    400098: Torus_005
+    400100: Torus_006
+    400102: Torus_007
+    400104: Torus_008
+    400106: Torus_009
+    400108: Torus_010
+    400110: Torus_011
     2300000: BezierCurve
     2300002: BezierCurve_001
     2300004: Component_PuzzleBackground
@@ -37,6 +127,51 @@ ModelImporter:
     2300014: Cube_004
     2300016: Cube_005
     2300018: Cube_006
+    2300020: Cylinder
+    2300022: Cylinder_001
+    2300024: Cylinder_002
+    2300026: Cylinder_003
+    2300028: Gate_A
+    2300030: Gate_B
+    2300032: Gate_C
+    2300034: Gate_D
+    2300036: Gate_E
+    2300038: Gate_F
+    2300040: Gate_G
+    2300042: Out_1
+    2300044: Out_2
+    2300046: Out_3
+    2300048: Out_4
+    2300050: Torus
+    2300052: Torus_001
+    2300054: Torus_002
+    2300056: Torus_003
+    2300058: Wire_000
+    2300060: Wire_001
+    2300062: Cylinder_004
+    2300064: Cylinder_005
+    2300066: Cylinder_006
+    2300068: Cylinder_007
+    2300070: Cylinder_008
+    2300072: Cylinder_009
+    2300074: Cylinder_010
+    2300076: Cylinder_011
+    2300078: Out_1_001
+    2300080: Out_1_002
+    2300082: Out_2_001
+    2300084: Out_2_002
+    2300086: Out_3_001
+    2300088: Out_3_002
+    2300090: Out_4_001
+    2300092: Out_4_002
+    2300094: Torus_004
+    2300096: Torus_005
+    2300098: Torus_006
+    2300100: Torus_007
+    2300102: Torus_008
+    2300104: Torus_009
+    2300106: Torus_010
+    2300108: Torus_011
     3300000: BezierCurve
     3300002: BezierCurve_001
     3300004: Component_PuzzleBackground
@@ -47,6 +182,51 @@ ModelImporter:
     3300014: Cube_004
     3300016: Cube_005
     3300018: Cube_006
+    3300020: Cylinder
+    3300022: Cylinder_001
+    3300024: Cylinder_002
+    3300026: Cylinder_003
+    3300028: Gate_A
+    3300030: Gate_B
+    3300032: Gate_C
+    3300034: Gate_D
+    3300036: Gate_E
+    3300038: Gate_F
+    3300040: Gate_G
+    3300042: Out_1
+    3300044: Out_2
+    3300046: Out_3
+    3300048: Out_4
+    3300050: Torus
+    3300052: Torus_001
+    3300054: Torus_002
+    3300056: Torus_003
+    3300058: Wire_000
+    3300060: Wire_001
+    3300062: Cylinder_004
+    3300064: Cylinder_005
+    3300066: Cylinder_006
+    3300068: Cylinder_007
+    3300070: Cylinder_008
+    3300072: Cylinder_009
+    3300074: Cylinder_010
+    3300076: Cylinder_011
+    3300078: Out_1_001
+    3300080: Out_1_002
+    3300082: Out_2_001
+    3300084: Out_2_002
+    3300086: Out_3_001
+    3300088: Out_3_002
+    3300090: Out_4_001
+    3300092: Out_4_002
+    3300094: Torus_004
+    3300096: Torus_005
+    3300098: Torus_006
+    3300100: Torus_007
+    3300102: Torus_008
+    3300104: Torus_009
+    3300106: Torus_010
+    3300108: Torus_011
     4300000: BezierCurve_001
     4300002: BezierCurve
     4300004: Cube_006
@@ -57,6 +237,51 @@ ModelImporter:
     4300014: Cube_000
     4300016: Cube_001
     4300018: Component_PuzzleBackground
+    4300020: Wire_000
+    4300022: Out_1
+    4300024: Torus_003
+    4300026: Cylinder_003
+    4300028: Out_2
+    4300030: Cylinder_002
+    4300032: Torus_002
+    4300034: Out_3
+    4300036: Torus_001
+    4300038: Cylinder_001
+    4300040: Out_4
+    4300042: Cylinder
+    4300044: Torus
+    4300046: Wire_001
+    4300048: Gate_G
+    4300050: Gate_F
+    4300052: Gate_E
+    4300054: Gate_A
+    4300056: Gate_B
+    4300058: Gate_C
+    4300060: Gate_D
+    4300062: Out_1_002
+    4300064: Torus_011
+    4300066: Cylinder_011
+    4300068: Out_2_002
+    4300070: Cylinder_010
+    4300072: Torus_010
+    4300074: Out_3_002
+    4300076: Torus_009
+    4300078: Cylinder_009
+    4300080: Out_4_002
+    4300082: Cylinder_008
+    4300084: Torus_008
+    4300086: Out_4_001
+    4300088: Torus_007
+    4300090: Cylinder_007
+    4300092: Out_3_001
+    4300094: Cylinder_006
+    4300096: Torus_006
+    4300098: Out_2_001
+    4300100: Torus_005
+    4300102: Cylinder_005
+    4300104: Out_1_001
+    4300106: Cylinder_004
+    4300108: Torus_004
     7400000: Default Take
     9500000: //RootNode
   materials:
