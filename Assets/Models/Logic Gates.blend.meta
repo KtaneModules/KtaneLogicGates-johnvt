@@ -61,6 +61,11 @@ ModelImporter:
     100106: Torus_009
     100108: Torus_010
     100110: Torus_011
+    100112: Cylinder_0
+    100114: Out_5
+    100116: Torus_0
+    100118: LED
+    100120: Sphere
     400000: BezierCurve
     400002: BezierCurve_001
     400004: Component_PuzzleBackground
@@ -117,6 +122,11 @@ ModelImporter:
     400106: Torus_009
     400108: Torus_010
     400110: Torus_011
+    400112: Cylinder_0
+    400114: Out_5
+    400116: Torus_0
+    400118: LED
+    400120: Sphere
     2300000: BezierCurve
     2300002: BezierCurve_001
     2300004: Component_PuzzleBackground
@@ -172,6 +182,10 @@ ModelImporter:
     2300104: Torus_009
     2300106: Torus_010
     2300108: Torus_011
+    2300110: Cylinder_0
+    2300112: Out_5
+    2300114: Torus_0
+    2300116: Sphere
     3300000: BezierCurve
     3300002: BezierCurve_001
     3300004: Component_PuzzleBackground
@@ -227,6 +241,10 @@ ModelImporter:
     3300104: Torus_009
     3300106: Torus_010
     3300108: Torus_011
+    3300110: Cylinder_0
+    3300112: Out_5
+    3300114: Torus_0
+    3300116: Sphere
     4300000: BezierCurve_001
     4300002: BezierCurve
     4300004: Cube_006
@@ -282,6 +300,10 @@ ModelImporter:
     4300104: Out_1_001
     4300106: Cylinder_004
     4300108: Torus_004
+    4300110: Cylinder_0
+    4300112: Torus_0
+    4300114: Out_5
+    4300116: Sphere
     7400000: Default Take
     9500000: //RootNode
   materials:
