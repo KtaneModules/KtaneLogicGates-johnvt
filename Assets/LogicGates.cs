@@ -26,13 +26,13 @@ public class LogicGates : MonoBehaviour
     const int GateF = 5;
     const int GateG = 6;
 
-    const int Left = -1;
-    const int Right = 1;
+    const int Previous = -1;
+    const int Next = 1;
 
     public GameObject[] Inputs;
     public GameObject[] Outputs;
-    public KMSelectable ButtonLeft;
-    public KMSelectable ButtonRight;
+    public KMSelectable ButtonPrevious;
+    public KMSelectable ButtonNext;
     public KMSelectable ButtonCheck;
 
     public string TwitchHelpMessage = "Cycle using a direction (previous/prev/p/left/l, next/n/right/r), optional number of steps, optional speed (slow/veryslow, no speed = instant)."
@@ -59,8 +59,8 @@ public class LogicGates : MonoBehaviour
     {
         _moduleId = _moduleIdCounter++;
 
-        ButtonLeft.OnInteract += delegate () { PressArrow(Left); return false; };
-        ButtonRight.OnInteract += delegate () { PressArrow(Right); return false; };
+        ButtonPrevious.OnInteract += delegate () { Press(Previous); return false; };
+        ButtonNext.OnInteract += delegate () { Press(Next); return false; };
         ButtonCheck.OnInteract += delegate () { PressCheck(); return false; };
 
         // Keep track of possible solutions
@@ -236,23 +236,26 @@ public class LogicGates : MonoBehaviour
 
     private void UpdateLeds()
     {
+        bool on;
         for (var i = 0; i < 8; i++)
         {
-            Inputs[i].SetActive(GetBit(_inputs[_currentInputIndex], i));
+            on = GetBit(_inputs[_currentInputIndex], i);
+            Inputs[i].transform.Find("LedOn").gameObject.SetActive(on);
+            Inputs[i].transform.Find("LedOff").gameObject.SetActive(!on);
         }
 
         for (var i = 0; i < 4; i++)
         {
-            Outputs[i].SetActive(
-                _gates[i].GateType.Eval(
-                    GetBit(_inputs[_currentInputIndex], i * 2),
-                    GetBit(_inputs[_currentInputIndex], i * 2 + 1)
-                )
+            on = _gates[i].GateType.Eval(
+                GetBit(_inputs[_currentInputIndex], i * 2),
+                GetBit(_inputs[_currentInputIndex], i * 2 + 1)
             );
+            Outputs[i].transform.Find("LedOn").gameObject.SetActive(on);
+            Outputs[i].transform.Find("LedOff").gameObject.SetActive(!on);
         }
     }
 
-    private void PressArrow(int direction)
+    private void Press(int direction)
     {
         GetComponent<KMAudio>().PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, transform);
         GetComponent<KMSelectable>().AddInteractionPunch(.2f);
@@ -302,9 +305,9 @@ public class LogicGates : MonoBehaviour
         if (split.Length == 1 && (new string[] { "left", "right", "check" }).Contains(split[0]))
         {
             if (split[0] == "left")
-                yield return ButtonLeft.OnInteract();
+                yield return ButtonPrevious.OnInteract();
             else if (split[0] == "right")
-                yield return ButtonRight.OnInteract();
+                yield return ButtonNext.OnInteract();
             else if (split[0] == "check")
                 yield return ButtonCheck.OnInteract();
 
@@ -323,9 +326,9 @@ public class LogicGates : MonoBehaviour
             for (int i = 0; i < amount; i++)
             {
                 if (split[0] == "left")
-                    yield return ButtonLeft.OnInteract();
+                    yield return ButtonPrevious.OnInteract();
                 else if (split[0] == "right")
-                    yield return ButtonRight.OnInteract();
+                    yield return ButtonNext.OnInteract();
 
                 if (split.Length == 3 && split[2] == "slow")
                     yield return new WaitForSeconds(1f);
