@@ -210,6 +210,29 @@ public class LogicGates : MonoBehaviour
                 input == _solution ? " (SOLUTION!)" : ""
             );
         }
+
+        var output = "";
+        for (var i = 0; i < 4; i++)
+        {
+            output += _gates[i].GateType.Eval(GetBit(_solution, i * 2), GetBit(_solution, i * 2 + 1)) ? "1" : "0";
+        }
+
+        Debug.LogFormat("[Logic Gates #{0}] Solution:", _moduleId);
+        Debug.LogFormat("[Logic Gates #{0}]     {1}", _moduleId, GetBit(_solution, 0) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]       > [A  {1}] {2}", _moduleId, _gates[GateA].GateType.Name.PadLeft(4), _gates[GateA].GateType.Eval(GetBit(_solution, 0), GetBit(_solution, 1)) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]     {1}               \\", _moduleId, GetBit(_solution, 1) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]                      > [E  {1}] {2}", _moduleId, _gates[GateE].GateType.Name.PadLeft(4), _gates[GateE].GateType.Eval(output[0] == '1', output[1] == '1') ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]     {1}               /              \\", _moduleId, GetBit(_solution, 2) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]       > [B  {1}] {2}                 \\", _moduleId, _gates[GateB].GateType.Name.PadLeft(4), _gates[GateB].GateType.Eval(GetBit(_solution, 2), GetBit(_solution, 3)) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]     {1}                                \\", _moduleId, GetBit(_solution, 3) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]                                       > [G  {1}] {2}", _moduleId, _gates[GateG].GateType.Name.PadLeft(4), _gates[GateG].GateType.Eval(_gates[GateE].GateType.Eval(output[0] == '1', output[1] == '1'), _gates[GateF].GateType.Eval(output[2] == '1', output[3] == '1')) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]     {1}                                /", _moduleId, GetBit(_solution, 4) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]       > [C  {1}] {2}                 /", _moduleId, _gates[GateC].GateType.Name.PadLeft(4), _gates[GateC].GateType.Eval(GetBit(_solution, 4), GetBit(_solution, 5)) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]     {1}               \\              /", _moduleId, GetBit(_solution, 5) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]                      > [F  {1}] {2}", _moduleId, _gates[GateF].GateType.Name.PadLeft(4), _gates[GateF].GateType.Eval(output[2] == '1', output[3] == '1') ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]     {1}               /", _moduleId, GetBit(_solution, 6) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]       > [D  {1}] {2}", _moduleId, _gates[GateD].GateType.Name.PadLeft(4), _gates[GateD].GateType.Eval(GetBit(_solution, 6), GetBit(_solution, 7)) ? "1" : "0");
+        Debug.LogFormat("[Logic Gates #{0}]     {1}", _moduleId, GetBit(_solution, 7) ? "1" : "0");
     }
 
     // Knuth shuffle algorithm :: courtesy of Wikipedia :)
