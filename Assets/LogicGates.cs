@@ -63,6 +63,17 @@ public class LogicGates : MonoBehaviour
         ButtonNext.OnInteract += delegate () { Press(Next); return false; };
         ButtonCheck.OnInteract += delegate () { PressCheck(); return false; };
 
+        // Scale lights
+        for (var i = 0; i < 8; i++)
+        {
+            Inputs[i].transform.Find("LedOn").gameObject.transform.Find("Point light").GetComponent<Light>().range *= transform.lossyScale.x;
+        }
+
+        for (var i = 0; i < 4; i++)
+        {
+            Outputs[i].transform.Find("LedOn").gameObject.transform.Find("Point light").GetComponent<Light>().range *= transform.lossyScale.x;
+        }
+
         // Keep track of possible solutions
         List<int> on = new List<int>();
 
