@@ -35,8 +35,10 @@ public class LogicGates : MonoBehaviour
     public KMSelectable ButtonNext;
     public KMSelectable ButtonCheck;
 
-    public string TwitchHelpMessage = "Cycle using a direction (previous/prev/p/left/l, next/n/right/r), optional number of steps, optional speed (slow/veryslow, no speed = instant)."
+#pragma warning disable 414
+    private string TwitchHelpMessage = "Cycle using a direction (previous/prev/p/left/l, next/n/right/r), optional number of steps, optional speed (slow/veryslow, no speed = instant)."
         + "E.g. '!{0} next 5 slow', '!{0} prev 2'. Check with '!{0} check'.";
+#pragma warning restore 414
 
     private GateType[] _gateTypes = new GateType[]
     {
